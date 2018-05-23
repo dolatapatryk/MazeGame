@@ -1,7 +1,11 @@
 package engineTester;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector3f;
 
+import entities.Camera;
+import entities.Entity;
+import models.Cube;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -15,38 +19,25 @@ public class MainGameLoop {
 	public static void main(String[] args) {
 		
 		DisplayManager.createDisplay();
-		
 		Loader loader = new Loader();
-		Renderer renderer = new Renderer();
 		StaticShader shader = new StaticShader();
+		Renderer renderer = new Renderer(shader);
 		
-		float[] vertices = {
-			-0.5f,0.5f,0,   //V0
-			-0.5f,-0.5f,0,  //V1
-			0.5f,-0.5f,0,   //V2
-			0.5f,0.5f,0     //V3
-		};
+		Cube cube = new Cube();
 		
-		int[] indices = {
-				0,1,3,  //Top left triangle v0, v1, v3
-				3,1,2   //Bottom right triangle v3, v1, v2
-		};
-		
-		float[] textureCoords = {
-				0,0, //V0
-				0,1, //V1
-				1,1, //V2
-				1,0 //V3
-		};
-		
-		RawModel model = loader.loadToVao(vertices, textureCoords, indices);
+		RawModel model = loader.loadToVao(cube.getVERTICES(), cube.getTEXTURE_COORDS(), cube.getINDICES());
 		ModelTexture texture = new ModelTexture(loader.loadTexture("texture"));
-		TexturedModel texturedModel = new TexturedModel(model, texture);
+		TexturedModel staticModel = new TexturedModel(model, texture);
+		Entity entity = new Entity(staticModel, new Vector3f(0,0,-5),0,0,0,1);
+		Camera camera = new Camera();
 		
 		while(!Display.isCloseRequested()) {
+			entity.increaseRotation(1, 1, 0);
+			camera.move();
 			renderer.prepare(); 
 			shader.start();
-			renderer.render(texturedModel);
+			shader.loadViewMatrix(camera);
+			renderer.render(entity, shader);
 			shader.stop();
 			DisplayManager.updateDisplay();
 		}
