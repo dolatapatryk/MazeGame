@@ -10,9 +10,7 @@ public class Camera {
 	private float yaw;
 	private float roll;
 	
-	public Camera() {
-		
-	}
+	public Camera() {}
 	
 	public void move() {
 		if(Keyboard.isKeyDown(Keyboard.KEY_W)) {

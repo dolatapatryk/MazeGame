@@ -50,7 +50,7 @@ public class OBJLoader {
 					normals.add(normal);
 				}else if(line.startsWith("f ")) {
 					textureArray = new float[vertices.size()*2];
-					normalsArray = new float[normals.size()*3];
+					normalsArray = new float[vertices.size()*3];
 					break;
 				}
 			}
@@ -89,7 +89,7 @@ public class OBJLoader {
 			indicesArray[i] = indices.get(i);
 		}
 		
-		return loader.loadToVao(verticesArray, textureArray, indicesArray);
+		return loader.loadToVao(verticesArray, textureArray, normalsArray, indicesArray);
 		
 	}
 	
