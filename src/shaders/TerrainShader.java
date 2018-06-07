@@ -20,6 +20,11 @@ public class TerrainShader extends ShaderProgram{
 	private int locationShineDamper;
 	private int locationReflectivity;
 	private int locationSkyColour;
+	private int locationBackgroundTexture;
+	private int locationrTexture;
+	private int locationgTexture;
+	private int locationbTexture;
+	private int locationBlendMap;
 
 	public TerrainShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -42,6 +47,19 @@ public class TerrainShader extends ShaderProgram{
 		locationShineDamper = super.getUniformLocation("shineDamper");
 		locationReflectivity = super.getUniformLocation("reflectivity");
 		locationSkyColour= super.getUniformLocation("skyColour");
+		locationBackgroundTexture = super.getUniformLocation("backgroundTexture");
+		locationrTexture = super.getUniformLocation("rTexture");
+		locationgTexture = super.getUniformLocation("gTexture");
+		locationbTexture = super.getUniformLocation("bTexture");
+		locationBlendMap = super.getUniformLocation("blendMap");
+	}
+	
+	public void connectTextureUnits() {
+		super.loadInt(locationBackgroundTexture, 0);
+		super.loadInt(locationrTexture, 1);
+		super.loadInt(locationgTexture, 2);
+		super.loadInt(locationbTexture, 3);
+		super.loadInt(locationBlendMap, 4);
 	}
 	
 	public void loadSkyColour(float r, float g, float b) {
