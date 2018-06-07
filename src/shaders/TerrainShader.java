@@ -1,6 +1,7 @@
 package shaders;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import entities.Camera;
 import entities.Light;
@@ -18,6 +19,7 @@ public class TerrainShader extends ShaderProgram{
 	private int locationLightColour;
 	private int locationShineDamper;
 	private int locationReflectivity;
+	private int locationSkyColour;
 
 	public TerrainShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -39,6 +41,11 @@ public class TerrainShader extends ShaderProgram{
 		locationLightColour = super.getUniformLocation("lightColour");
 		locationShineDamper = super.getUniformLocation("shineDamper");
 		locationReflectivity = super.getUniformLocation("reflectivity");
+		locationSkyColour= super.getUniformLocation("skyColour");
+	}
+	
+	public void loadSkyColour(float r, float g, float b) {
+		super.loadVector(locationSkyColour, new Vector3f(r,g,b));
 	}
 	
 	public void loadShineVariables(float damper, float reflectivity) {
