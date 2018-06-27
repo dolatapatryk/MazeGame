@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 import engineTester.MainGameLoop;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
+import toolbox.MazeGenerator;
 
 public class Player extends Entity{
 	
@@ -25,7 +26,8 @@ public class Player extends Entity{
 	private float upwardsSpeed = 0;
 	
 	private boolean isInAir = false;
-	private boolean collision = false;
+	private boolean startChecked = false;
+	private boolean endChecked = false;
 
 	public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
@@ -33,6 +35,7 @@ public class Player extends Entity{
 	
 	public void move() {
 		checkInputs();
+		checkStartMaze(MainGameLoop.cubesAll);
 		super.increaseRotation(0, currentTurnSpeed*DisplayManager.getFrameTimeSeconds(), 0);
 		float distance = currentSpeed * DisplayManager.getFrameTimeSeconds();
 		float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotY())));
@@ -41,13 +44,15 @@ public class Player extends Entity{
 		upwardsSpeed += GRAVITY * DisplayManager.getFrameTimeSeconds();
 		if(!checkCollisionWithCubes(MainGameLoop.cubes)) {
 		super.increasePosition(0, upwardsSpeed*DisplayManager.getFrameTimeSeconds(), 0);
+		}else {
+			isInAir = false;
 		}
-		
 		if(super.getPosition().y<TERRAIN_HEIGHT) {
 			upwardsSpeed = 0;
 			isInAir = false;
 			super.getPosition().y = TERRAIN_HEIGHT;
 		}
+		checkEndMaze(MainGameLoop.cubesAll);
 	}
 	
 	private void jump() {
@@ -79,7 +84,6 @@ public class Player extends Entity{
 		}
 	}
 
-	
 	private boolean checkCollisionWithCubes(List<Entity> cubes) {
 		for(Entity cube:cubes) {
 			float middleX  = cube.getPosition().x;
@@ -107,4 +111,37 @@ public class Player extends Entity{
 		return false;
 	}
 	
+	private void checkStartMaze(List<Entity> cubes) {
+		if(!startChecked) {
+		float middleX  = cubes.get(1).getPosition().x;
+		float middleZ = cubes.get(1).getPosition().z;
+		float leftX = middleX - DELTA;
+		float rightX = middleX + DELTA;
+		float frontZ = middleZ + DELTA;
+		float backZ = middleZ - DELTA;
+		
+		if((super.getPosition().x>=leftX && super.getPosition().x<=rightX) && (super.getPosition().z<=frontZ && super.getPosition().z>=backZ)) { 
+			System.out.println("start labiryntu");
+			startChecked = true;
+		}
+	}
+	}
+
+	private void checkEndMaze(List<Entity> cubes) {
+		if(!endChecked) {
+		int index = cubes.size()-2;
+		float middleX  = cubes.get(index).getPosition().x;
+		float middleZ = cubes.get(index).getPosition().z;
+		float leftX = middleX - DELTA;
+		float rightX = middleX + DELTA;
+		float frontZ = middleZ + DELTA;
+		float backZ = middleZ - DELTA;
+		
+		if((super.getPosition().x>=leftX && super.getPosition().x<=rightX) && (super.getPosition().z<=frontZ && super.getPosition().z>=backZ)) { 
+			System.out.println("koniec labiryntu, gratuluje");
+			endChecked = true;
+		}
+	}
+	}
+
 }

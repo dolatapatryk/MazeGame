@@ -1,9 +1,13 @@
 package engineTester;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -13,8 +17,6 @@ import entities.Light;
 import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
-import objConverter.ModelData;
-import objConverter.OBJFileLoader;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
@@ -23,22 +25,26 @@ import terrains.Terrain;
 import textures.ModelTexture;
 import textures.TerrainTexture;
 import textures.TerrainTexturePack;
+import toolbox.AudioPlayer;
 import toolbox.MazeGenerator;
 
 public class MainGameLoop {
 	
-	private static final int DIMENSION = 10;
+	private static final int DIMENSION = 3;
 	private static final int CUBE_SCALE = 15;
 	
 	public static List<Entity> entities = new ArrayList<>();
 	public static List<Entity> cubes = new ArrayList<>();
+	public static List<Entity> cubesAll = new ArrayList<>();
 
 	public static void main(String[] args) {
 		
 		
 		MazeGenerator maze = new MazeGenerator(DIMENSION);
 		maze.updateGrid();
-
+		
+		AudioPlayer.load();
+		AudioPlayer.getMusic("music").loop();
 
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
@@ -82,6 +88,9 @@ public class MainGameLoop {
 		float wallZ = -80;
 		for(int i=0;i<maze.getGrid().length;i++) {
 			for(int j=0;j<maze.getGrid()[i].length;j++) {
+				if(maze.getGrid()[i][j] == 'X') {
+					cubesAll.add(new Entity(cubeTextured, new Vector3f(wallX,0,wallZ),0,0,0,CUBE_SCALE));
+				}
 				if(maze.getGrid()[i][j] == 'X' && !((i==0 && j==1) || (i==maze.getGrid().length-1 && j==maze.getGrid()[i].length-2))) {
 					cubes.add(new Entity(cubeTextured, new Vector3f(wallX,0,wallZ),0,0,0,CUBE_SCALE));
 				}
@@ -91,16 +100,12 @@ public class MainGameLoop {
 			wallZ-=CUBE_SCALE;
 		}
 		
-		
-		
-		Light light = new Light(new Vector3f(20000,20000,2000), new Vector3f(1,1,1));
-		
+		Light light = new Light(new Vector3f(100,200,100), new Vector3f(1,1,1));
 		
 		MasterRenderer renderer = new MasterRenderer();
 		
 		RawModel person = OBJLoader.loadObjModel("person", loader);
 		TexturedModel playerModel = new TexturedModel(person, new ModelTexture(loader.loadTexture("playerTexture1")));
-		
 		Player player = new Player(playerModel, new Vector3f(100,7.5f,-50),0,180,0,0.35f);
 		
 		Camera camera = new Camera(player);
