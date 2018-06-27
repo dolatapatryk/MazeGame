@@ -1,10 +1,19 @@
 package terrains;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Vector3f;
+
 import models.RawModel;
 import renderEngine.Loader;
-import textures.ModelTexture;
 import textures.TerrainTexture;
 import textures.TerrainTexturePack;
+import toolbox.Maths;
 
 public class Terrain {
 	
@@ -17,6 +26,7 @@ public class Terrain {
 	private TerrainTexturePack texturePack;
 	private TerrainTexture blendMap;
 	
+	
 	public Terrain(int gridX, int gridZ, Loader loader, TerrainTexturePack texturePack, TerrainTexture blendMap) {
 		this.texturePack = texturePack;
 		this.blendMap = blendMap;
@@ -26,6 +36,8 @@ public class Terrain {
 	}
 	
 	private RawModel generateTerrain(Loader loader){
+		
+		
 		int count = VERTEX_COUNT * VERTEX_COUNT;
 		float[] vertices = new float[count * 3];
 		float[] normals = new float[count * 3];
@@ -62,6 +74,7 @@ public class Terrain {
 		}
 		return loader.loadToVao(vertices, textureCoords, normals, indices);
 	}
+	
 
 	public RawModel getModel() {
 		return model;

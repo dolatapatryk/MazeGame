@@ -26,13 +26,19 @@ import textures.TerrainTexturePack;
 import toolbox.MazeGenerator;
 
 public class MainGameLoop {
+	
+	private static final int DIMENSION = 10;
+	private static final int CUBE_SCALE = 15;
+	
+	public static List<Entity> entities = new ArrayList<>();
+	public static List<Entity> cubes = new ArrayList<>();
 
 	public static void main(String[] args) {
 		
-		final int DIMENSION = 10;
 		
 		MazeGenerator maze = new MazeGenerator(DIMENSION);
 		maze.updateGrid();
+
 
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
@@ -49,13 +55,11 @@ public class MainGameLoop {
 		
 		///*******
 		
-		ModelData data = OBJFileLoader.loadOBJ("tree");
-		RawModel model = loader.loadToVao(data.getVertices(), data.getTextureCoords(), data.getNormals(), data.getIndices());
+
 		RawModel grassModel = OBJLoader.loadObjModel("grassModel", loader);
 		RawModel fernModel = OBJLoader.loadObjModel("fern", loader); 
 		RawModel cubeModel = OBJLoader.loadObjModel("cube", loader);
 		
-		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("tree")));
 		TexturedModel grass = new TexturedModel(grassModel, new ModelTexture(loader.loadTexture("grassTexture")));
 		grass.getTexture().setHasTransparency(true);
 		grass.getTexture().setUseFakeLighting(true);
@@ -64,45 +68,32 @@ public class MainGameLoop {
 		TexturedModel cubeTextured = new TexturedModel(cubeModel, new ModelTexture(loader.loadTexture("texture")));
 		cubeTextured.getTexture().setUseFakeLighting(true);
 		
+		Terrain terrain = new Terrain(0,-1, loader, texturePack, blendMap);
+		Terrain terrain2 = new Terrain(-1,-1, loader, texturePack, blendMap);
 		
-		List<Entity> entities = new ArrayList<>();
-		List<Entity> cubes = new ArrayList<>();
+		
 		Random random = new Random();
 		for(int i=0;i<500;i++) {
-			//entities.add(new Entity(staticModel, new Vector3f(random.nextFloat()*800-400,0,random.nextFloat()* -600),0,0,0,3));
 			entities.add(new Entity(grass, new Vector3f(random.nextFloat()*800-400,0,random.nextFloat()* -600),0,0,0,1));
 			entities.add(new Entity(fern, new Vector3f(random.nextFloat()*800-400,0,random.nextFloat()* -600),0,0,0,0.6f));
-			//entities.add(new Entity(cubeTextured, new Vector3f(random.nextFloat()*800-400,0,random.nextFloat()* -600),0,0,0,15));
 		}
-//		float shift =-80;
-//		for(int i=0;i<10;i++) {
-//			cubes.add(new Entity(cubeTextured, new Vector3f(100,0,shift),0,0,0,15));
-//			shift-=cubes.get(0).getScale();
-//		}
-//		shift= 85;
-//		float lastPosition = cubes.get(cubes.size()-1).getPosition().getZ();
-//		for(int i=0;i<10;i++) {
-//			cubes.add(new Entity(cubeTextured, new Vector3f(shift,0,lastPosition),0,0,0,15));
-//			shift-=cubes.get(0).getScale();
-//		}
+		
 		float wallX = 100;
 		float wallZ = -80;
 		for(int i=0;i<maze.getGrid().length;i++) {
 			for(int j=0;j<maze.getGrid()[i].length;j++) {
-				if(maze.getGrid()[i][j] == 'X') {
-					cubes.add(new Entity(cubeTextured, new Vector3f(wallX,0,wallZ),0,0,0,15));
+				if(maze.getGrid()[i][j] == 'X' && !((i==0 && j==1) || (i==maze.getGrid().length-1 && j==maze.getGrid()[i].length-2))) {
+					cubes.add(new Entity(cubeTextured, new Vector3f(wallX,0,wallZ),0,0,0,CUBE_SCALE));
 				}
-				wallX+=15;
+				wallX+=CUBE_SCALE;
 			}
 			wallX=100;
-			wallZ-=15;
+			wallZ-=CUBE_SCALE;
 		}
 		
 		
-		Light light = new Light(new Vector3f(20000,20000,2000), new Vector3f(1,1,1));
 		
-		Terrain terrain = new Terrain(0,-1, loader, texturePack, blendMap);
-		Terrain terrain2 = new Terrain(-1,-1, loader, texturePack, blendMap);
+		Light light = new Light(new Vector3f(20000,20000,2000), new Vector3f(1,1,1));
 		
 		
 		MasterRenderer renderer = new MasterRenderer();
@@ -110,8 +101,11 @@ public class MainGameLoop {
 		RawModel person = OBJLoader.loadObjModel("person", loader);
 		TexturedModel playerModel = new TexturedModel(person, new ModelTexture(loader.loadTexture("playerTexture1")));
 		
-		Player player = new Player(playerModel, new Vector3f(100,0,-50),0,180,0,0.35f);
+		Player player = new Player(playerModel, new Vector3f(100,7.5f,-50),0,180,0,0.35f);
+		
 		Camera camera = new Camera(player);
+		
+		
 		
 		while(!Display.isCloseRequested()) {
 			camera.move();
